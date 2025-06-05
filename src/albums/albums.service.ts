@@ -1,12 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Album } from '../types/interfaces';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { randomUUID } from 'crypto';
+import { TracksService } from '../tracks/tracks.service';
 
 @Injectable()
 export class AlbumsService {
   private albums: Album[] = [];
+
+  constructor(
+    @Inject(forwardRef(() => TracksService))
+    private readonly tracksService: TracksService,
+  ) {}
 
   create(createAlbumDto: CreateAlbumDto): Album {
     const album: Album = {
@@ -50,6 +61,9 @@ export class AlbumsService {
     if (albumIndex === -1) {
       throw new NotFoundException('Album not found');
     }
+
+    this.tracksService.removeAlbumReferences(id);
+
     this.albums.splice(albumIndex, 1);
   }
 
