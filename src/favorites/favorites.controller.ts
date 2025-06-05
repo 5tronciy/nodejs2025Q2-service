@@ -4,69 +4,76 @@ import {
   Post,
   Delete,
   Param,
-  HttpStatus,
   HttpCode,
+  HttpStatus,
   BadRequestException,
-  NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
-
-import { validate as isUuid } from 'uuid';
 import { FavoritesService } from './favorites.service';
+import { validate as isUUID } from 'uuid';
 
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  async findAll() {
+  findAll() {
     return this.favoritesService.findAll();
   }
 
   @Post('track/:id')
   @HttpCode(HttpStatus.CREATED)
-  async addTrack(@Param('id') id: string): Promise<{ message: string }> {
-    if (!isUuid(id)) {
-      throw new BadRequestException('Invalid track ID');
+  addTrack(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Track ID is invalid (not uuid)');
     }
-
-    const result = await this.favoritesService.addTrack(id);
-    if (result === 'not-found') {
-      throw new UnprocessableEntityException(
-        'Track with this id does not exist',
-      );
-    }
-
-    return { message: 'Track added to favorites successfully' };
+    this.favoritesService.addTrack(id);
+    return { message: 'Track added to favorites' };
   }
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async removeTrack(@Param('id') id: string): Promise<void> {
-    if (!isUuid(id)) {
-      throw new BadRequestException('Invalid track ID');
+  removeTrack(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Track ID is invalid (not uuid)');
     }
-
-    const result = await this.favoritesService.removeTrack(id);
-    if (!result) {
-      throw new NotFoundException('Track is not in favorites');
-    }
+    this.favoritesService.removeTrack(id);
   }
 
   @Post('album/:id')
   @HttpCode(HttpStatus.CREATED)
-  async addAlbum(@Param('id') id: string): Promise<{ message: string }> {
-    if (!isUuid(id)) {
-      throw new BadRequestException('Invalid album ID');
+  addAlbum(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Album ID is invalid (not uuid)');
     }
+    this.favoritesService.addAlbum(id);
+    return { message: 'Album added to favorites' };
+  }
 
-    const result = await this.favoritesService.addAlbum(id);
-    if (result === 'not-found') {
-      throw new UnprocessableEntityException(
-        'Album with this id does not exist',
-      );
+  @Delete('album/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeAlbum(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Album ID is invalid (not uuid)');
     }
+    this.favoritesService.removeAlbum(id);
+  }
 
-    return { message: 'Album added to favorites successfully' };
+  @Post('artist/:id')
+  @HttpCode(HttpStatus.CREATED)
+  addArtist(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Artist ID is invalid (not uuid)');
+    }
+    this.favoritesService.addArtist(id);
+    return { message: 'Artist added to favorites' };
+  }
+
+  @Delete('artist/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeArtist(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Artist ID is invalid (not uuid)');
+    }
+    this.favoritesService.removeArtist(id);
   }
 }
