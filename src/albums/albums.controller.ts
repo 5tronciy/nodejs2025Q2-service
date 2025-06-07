@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -52,11 +51,6 @@ export class AlbumsController {
   async remove(@Param('id') id: string): Promise<void> {
     if (!isUUID(id)) {
       throw new BadRequestException('Invalid album ID');
-    }
-
-    const album = await this.albumsService.findOne(id);
-    if (!album) {
-      throw new NotFoundException('Album not found');
     }
 
     await this.albumsService.remove(id);
