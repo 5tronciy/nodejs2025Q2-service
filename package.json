@@ -35,11 +35,11 @@
     "migration:run": "npm run typeorm -- migration:run -d src/database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/database/data-source.ts",
     "docker:build": "docker build -t home-library-app .",
-    "docker:run": "docker-compose up -d",
-    "docker:dev": "docker-compose --profile dev up -d",
-    "docker:stop": "docker-compose down",
-    "docker:clean": "docker-compose down -v --remove-orphans",
-    "docker:logs": "docker-compose logs -f",
+    "docker:run": "docker compose up -d",
+    "docker:dev": "docker compose --profile dev up -d", 
+    "docker:stop": "docker compose down",
+    "docker:clean": "docker compose down -v --remove-orphans",
+    "docker:logs": "docker compose logs -f",
     "docker:scan": "docker scout cves home-library-app || echo 'Docker Scout not available, using trivy as fallback' && docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image home-library-app"
   },
   "dependencies": {
