@@ -134,16 +134,4 @@ export class FavoritesService {
       throw new NotFoundException('Artist is not in favorites');
     }
   }
-
-  async removeArtistFromFavorites(artistId: string): Promise<void> {
-    await this.favoriteArtistRepository.delete({ artistId });
-  }
-
-  async removeAlbumFromFavorites(albumId: string): Promise<void> {
-    await this.favoriteAlbumRepository.delete({ albumId });
-  }
-
-  async removeTrackFromFavorites(trackId: string): Promise<void> {
-    await this.favoriteTrackRepository.delete({ trackId });
-  }
 }

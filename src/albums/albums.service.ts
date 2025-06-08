@@ -61,6 +61,8 @@ export class AlbumsService {
       throw new NotFoundException('Album not found');
     }
 
+    await this.tracksService.removeAlbumReferences(id);
+
     await this.albumRepository.remove(album);
   }
 

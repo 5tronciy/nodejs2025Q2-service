@@ -62,6 +62,9 @@ export class ArtistsService {
       throw new NotFoundException('Artist not found');
     }
 
+    await this.albumsService.removeArtistReferences(id);
+    await this.tracksService.removeArtistReferences(id);
+
     await this.artistRepository.remove(artist);
   }
 
