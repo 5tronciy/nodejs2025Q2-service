@@ -16,64 +16,64 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  findAll() {
-    return this.favoritesService.findAll();
+  async findAll() {
+    return await this.favoritesService.findAll();
   }
 
   @Post('track/:id')
   @HttpCode(HttpStatus.CREATED)
-  addTrack(@Param('id') id: string) {
+  async addTrack(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Track ID is invalid (not uuid)');
     }
-    this.favoritesService.addTrack(id);
+    await this.favoritesService.addTrack(id);
     return { message: 'Track added to favorites' };
   }
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrack(@Param('id') id: string) {
+  async removeTrack(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Track ID is invalid (not uuid)');
     }
-    this.favoritesService.removeTrack(id);
+    await this.favoritesService.removeTrack(id);
   }
 
   @Post('album/:id')
   @HttpCode(HttpStatus.CREATED)
-  addAlbum(@Param('id') id: string) {
+  async addAlbum(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Album ID is invalid (not uuid)');
     }
-    this.favoritesService.addAlbum(id);
+    await this.favoritesService.addAlbum(id);
     return { message: 'Album added to favorites' };
   }
 
   @Delete('album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAlbum(@Param('id') id: string) {
+  async removeAlbum(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Album ID is invalid (not uuid)');
     }
-    this.favoritesService.removeAlbum(id);
+    await this.favoritesService.removeAlbum(id);
   }
 
   @Post('artist/:id')
   @HttpCode(HttpStatus.CREATED)
-  addArtist(@Param('id') id: string) {
+  async addArtist(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Artist ID is invalid (not uuid)');
     }
-    this.favoritesService.addArtist(id);
+    await this.favoritesService.addArtist(id);
     return { message: 'Artist added to favorites' };
   }
 
   @Delete('artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeArtist(@Param('id') id: string) {
+  async removeArtist(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Artist ID is invalid (not uuid)');
     }
-    this.favoritesService.removeArtist(id);
+    await this.favoritesService.removeArtist(id);
   }
 }

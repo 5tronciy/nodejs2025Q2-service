@@ -1,40 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Track } from '../types/interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { randomUUID } from 'crypto';
+import { Track } from '../entities/track.entity';
 
 @Injectable()
 export class TracksService {
-  private tracks: Track[] = [];
+  constructor(
+    @InjectRepository(Track)
+    private readonly trackRepository: Repository<Track>,
+  ) {}
 
-  create(createTrackDto: CreateTrackDto): Track {
-    const track: Track = {
-      id: randomUUID(),
+  async create(createTrackDto: CreateTrackDto): Promise<Track> {
+    const track = this.trackRepository.create({
       name: createTrackDto.name,
       artistId: createTrackDto.artistId || null,
       albumId: createTrackDto.albumId || null,
       duration: createTrackDto.duration,
-    };
+    });
 
-    this.tracks.push(track);
-    return track;
+    return await this.trackRepository.save(track);
   }
 
-  findAll(): Track[] {
-    return this.tracks;
+  async findAll(): Promise<Track[]> {
+    return await this.trackRepository.find();
   }
 
-  findOne(id: string): Track {
-    const track = this.tracks.find((track) => track.id === id);
+  async findOne(id: string): Promise<Track> {
+    const track = await this.trackRepository.findOne({ where: { id } });
     if (!track) {
       throw new NotFoundException('Track not found');
     }
     return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto): Track {
-    const track = this.tracks.find((track) => track.id === id);
+  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
+    const track = await this.trackRepository.findOne({ where: { id } });
     if (!track) {
       throw new NotFoundException('Track not found');
     }
@@ -44,34 +46,26 @@ export class TracksService {
     track.albumId = updateTrackDto.albumId || null;
     track.duration = updateTrackDto.duration;
 
-    return track;
+    return await this.trackRepository.save(track);
   }
 
-  remove(id: string): void {
-    const trackIndex = this.tracks.findIndex((track) => track.id === id);
-    if (trackIndex === -1) {
+  async remove(id: string): Promise<void> {
+    const result = await this.trackRepository.delete(id);
+    if (result.affected === 0) {
       throw new NotFoundException('Track not found');
     }
-    this.tracks.splice(trackIndex, 1);
   }
 
-  removeArtistReferences(artistId: string): void {
-    this.tracks.forEach((track) => {
-      if (track.artistId === artistId) {
-        track.artistId = null;
-      }
-    });
+  async removeArtistReferences(artistId: string): Promise<void> {
+    await this.trackRepository.update({ artistId }, { artistId: null });
   }
 
-  removeAlbumReferences(albumId: string): void {
-    this.tracks.forEach((track) => {
-      if (track.albumId === albumId) {
-        track.albumId = null;
-      }
-    });
+  async removeAlbumReferences(albumId: string): Promise<void> {
+    await this.trackRepository.update({ albumId }, { albumId: null });
   }
 
-  exists(id: string): boolean {
-    return this.tracks.some((track) => track.id === id);
+  async exists(id: string): Promise<boolean> {
+    const count = await this.trackRepository.count({ where: { id } });
+    return count > 0;
   }
 }
