@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { UserResponse } from '../types/interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,10 +26,17 @@ export class UsersService {
         `Creating new user with login: ${createUserDto.login}`,
         'UsersService',
       );
+
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(
+        createUserDto.password,
+        saltRounds,
+      );
+
       const now = Date.now();
       const user = this.userRepository.create({
         login: createUserDto.login,
-        password: createUserDto.password,
+        password: hashedPassword,
         version: 1,
         createdAt: now,
         updatedAt: now,
@@ -69,11 +77,22 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.password !== updatePasswordDto.oldPassword) {
+    const isOldPasswordValid = await bcrypt.compare(
+      updatePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isOldPasswordValid) {
       throw new ForbiddenException('Old password is wrong');
     }
 
-    user.password = updatePasswordDto.newPassword;
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(
+      updatePasswordDto.newPassword,
+      saltRounds,
+    );
+
+    user.password = hashedNewPassword;
     user.version += 1;
     user.updatedAt = Date.now();
 
@@ -86,6 +105,10 @@ export class UsersService {
     if (result.affected === 0) {
       throw new NotFoundException('User not found');
     }
+  }
+
+  async findByLogin(login: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { login } });
   }
 
   private excludePassword(user: User): UserResponse {

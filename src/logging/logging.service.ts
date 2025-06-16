@@ -24,7 +24,7 @@ export class LoggingService {
   private readonly logLevel: LogLevel;
   private readonly logToFile: boolean;
   private readonly logDirectory: string;
-  private readonly maxFileSize: number; // in KB
+  private readonly maxFileSize: number;
   private currentLogFile: string;
 
   constructor(private readonly configService: ConfigService) {

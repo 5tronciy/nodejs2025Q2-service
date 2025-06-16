@@ -9,7 +9,6 @@ export class ProcessListeners {
   }
 
   private static setupListeners(): void {
-    // Handle uncaughtException
     process.on('uncaughtException', (error: Error) => {
       ProcessListeners.loggingService.error(
         `Uncaught Exception: ${error.message}`,
@@ -22,14 +21,12 @@ export class ProcessListeners {
         },
       );
 
-      // Give some time for logging to complete before exiting
       setTimeout(() => {
         console.error('Uncaught Exception - Exiting application');
         process.exit(1);
       }, 1000);
     });
 
-    // Handle unhandledRejection
     process.on(
       'unhandledRejection',
       (reason: unknown, promise: Promise<any>) => {
@@ -54,8 +51,6 @@ export class ProcessListeners {
           },
         );
 
-        // Note: We don't exit on unhandled rejections by default
-        // as they might not be fatal, but this can be configured
         const exitOnUnhandledRejection =
           process.env.EXIT_ON_UNHANDLED_REJECTION === 'true';
 
@@ -68,7 +63,6 @@ export class ProcessListeners {
       },
     );
 
-    // Handle SIGTERM
     process.on('SIGTERM', () => {
       ProcessListeners.loggingService.info(
         'SIGTERM received - Starting graceful shutdown',
@@ -76,7 +70,6 @@ export class ProcessListeners {
       );
     });
 
-    // Handle SIGINT
     process.on('SIGINT', () => {
       ProcessListeners.loggingService.info(
         'SIGINT received - Starting graceful shutdown',
@@ -84,7 +77,6 @@ export class ProcessListeners {
       );
     });
 
-    // Handle process exit
     process.on('exit', (code: number) => {
       console.log(`Process exiting with code: ${code}`);
     });

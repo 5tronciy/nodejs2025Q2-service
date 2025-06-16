@@ -35,6 +35,10 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
+# Create logs directory with proper permissions
+RUN mkdir -p /app/logs && \
+    chown -R nestjs:nodejs /app/logs
+
 # Change ownership to non-root user
 RUN chown -R nestjs:nodejs /app
 USER nestjs

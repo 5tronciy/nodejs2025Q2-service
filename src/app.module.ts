@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlbumsModule } from './albums/albums.module';
 import { ArtistsModule } from './artists/artists.module';
+import { AuthModule } from './auth/auth.module';
 import { getDatabaseConfig } from './database/database.config';
 import { Album } from './entities/album.entity';
 import { Artist } from './entities/artist.entity';
 import { FavoriteAlbum } from './entities/favorite-album.entity';
 import { FavoriteArtist } from './entities/favorite-artist.entity';
 import { FavoriteTrack } from './entities/favorite-track.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { Track } from './entities/track.entity';
 import { User } from './entities/user.entity';
 import { FavoritesModule } from './favorites/favorites.module';
@@ -18,6 +20,7 @@ import { UsersModule } from './users/users.module';
 import { LoggingModule } from './logging/logging.module';
 import { LoggingInterceptor } from './logging/logging.interceptor';
 import { GlobalExceptionFilter } from './logging/global-exception.filter';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -34,8 +37,10 @@ import { GlobalExceptionFilter } from './logging/global-exception.filter';
       FavoriteArtist,
       FavoriteAlbum,
       FavoriteTrack,
+      RefreshToken,
     ]),
     LoggingModule,
+    AuthModule,
     UsersModule,
     ArtistsModule,
     TracksModule,
@@ -43,6 +48,10 @@ import { GlobalExceptionFilter } from './logging/global-exception.filter';
     FavoritesModule,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,

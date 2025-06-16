@@ -36,7 +36,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error = exception.name;
       }
     } else {
-      // Unexpected error - always return 500
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Internal Server Error';
       error = 'Internal Server Error';
@@ -51,7 +50,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error,
     };
 
-    // Log the error with full details
     const errorDetails = {
       url: request.url,
       method: request.method,

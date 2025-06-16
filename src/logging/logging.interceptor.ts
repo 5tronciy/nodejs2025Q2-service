@@ -22,7 +22,6 @@ export class LoggingInterceptor implements NestInterceptor {
     const userAgent = headers['user-agent'];
     const ip = request.ip || request.connection.remoteAddress;
 
-    // Log the incoming request
     this.loggingService.logRequest(method, url, query, body, userAgent, ip);
 
     return next.handle().pipe(
