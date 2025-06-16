@@ -9,26 +9,42 @@ import { User } from '../entities/user.entity';
 import { UserResponse } from '../types/interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { LoggingService } from '../logging/logging.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
-    const now = Date.now();
-    const user = this.userRepository.create({
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      await this.loggingService.debug(
+        `Creating new user with login: ${createUserDto.login}`,
+        'UsersService',
+      );
+      const now = Date.now();
+      const user = this.userRepository.create({
+        login: createUserDto.login,
+        password: createUserDto.password,
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-    const savedUser = await this.userRepository.save(user);
-    return this.excludePassword(savedUser);
+      const savedUser = await this.userRepository.save(user);
+      return this.excludePassword(savedUser);
+    } catch (error) {
+      await this.loggingService.error(
+        `Failed to create user: ${error.message}`,
+        error.stack,
+        'UsersService',
+        { login: createUserDto.login },
+      );
+      throw error;
+    }
   }
 
   async findAll(): Promise<UserResponse[]> {
